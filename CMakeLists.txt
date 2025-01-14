@@ -81,6 +81,13 @@ if(NOT Gnuradio_FOUND)
 endif()
 
 
+# RAS OPTION FOR _SAMPLES_NOT_TIMESTAMP
+option(USE_SAMPLES "Enable Samples Not Timestamp" OFF)
+
+if (USE_SAMPLES)
+    target_compile_definitions(iridium_python PRIVATE _SAMPLES_NOT_TIMESTAMP=1)
+endif(USE_SAMPLES)
+
 include(GrVersion)
 
 include(GrPlatform) #define LIB_SUFFIX

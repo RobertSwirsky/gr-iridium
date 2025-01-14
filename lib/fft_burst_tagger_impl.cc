@@ -429,9 +429,14 @@ void fft_burst_tagger_impl::tag_new_bursts(void)
         // offset * 1000000000 can become larger than 2**64, so we need to scale it
         // together with the sample rate. This means the sample rate must be a multiple of
         // 100000
+        #ifndef _SAMPLES_NOT_TIMESTAMP
         const uint64_t timestamp =
             d_last_rx_time_timestamp +
             (offset * (1000000000ULL / 100000)) / (d_sample_rate / 100000);
+        #else 
+        const uint64_t timestamp =
+            offset;
+        #endif
 
         pmt::pmt_t value = pmt::make_dict();
         value = pmt::dict_add(value, pmt::mp("id"), pmt::from_uint64(b.id));
@@ -495,12 +500,14 @@ int fft_burst_tagger_impl::work(int noutput_items,
 
     assert(noutput_items % d_fft_size == 0);
 
+#ifndef _SAMPLES_NOT_TIMESTAMP
     if (d_last_rx_time_timestamp == 0 && !d_offline) {
         d_last_rx_time_timestamp =
             std::chrono::duration_cast<std::chrono::nanoseconds>(
                 std::chrono::high_resolution_clock::now().time_since_epoch())
                 .count();
     }
+#endif
 
     std::vector<tag_t> rx_time_tags;
     get_tags_in_window(rx_time_tags, 0, 0, noutput_items, pmt::mp("rx_time"));
