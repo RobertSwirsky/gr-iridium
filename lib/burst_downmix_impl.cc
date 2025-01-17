@@ -717,7 +717,7 @@ int burst_downmix_impl::process_next_frame(float sample_rate,
                      sub_id);
     }
 
-    #ifndef _SAMPLES_NOT_TIMESTAMP
+    #ifdef _SAMPLES_NOT_TIMESTAMP
     timestamp += start * 1000000000ULL / (int)sample_rate;
     #else
     timestamp += start;
@@ -827,7 +827,7 @@ void burst_downmix_impl::handler(pmt::pmt_t msg)
       burst_size = burst_size / decimation;
 #else
     burst_size = (burst_size - d_input_fir.ntaps() + 1) / decimation;
-    #ifndef _SAMPLES_NOT_TIMESTAMP
+    #ifdef _SAMPLES_NOT_TIMESTAMP
         timestamp += d_input_fir.ntaps() / 2 * 1000000000ULL / (int)sample_rate;
     #else 
         timestamp += d_input_fir.ntaps() / 2;

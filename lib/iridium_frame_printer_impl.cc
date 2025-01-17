@@ -83,7 +83,7 @@ void iridium_frame_printer_impl::handler(const pmt::pmt_t& msg)
     }
 
     std::cout << "RAW: " << d_file_info << " ";
-    #ifndef _SAMPLES_NOT_TIMESTAMP
+    #ifdef _SAMPLES_NOT_TIMESTAMP
     std::cout << format("%012.6f ") % ((timestamp - d_t0) / 1000000.);
     #else 
     std::cout << format("%1$020llu") % timestamp;
