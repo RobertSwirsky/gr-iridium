@@ -173,7 +173,7 @@ burst_downmix_impl::burst_downmix_impl(int output_sample_rate,
     set_msg_handler(pmt::mp("cpdus"), [this](pmt::pmt_t msg) { this->handler(msg); });
 
     if (d_debug) {
-        std::cout << "Start filter size:" << d_start_finder_fir.ntaps()
+        std::cerr << "Start filter size:" << d_start_finder_fir.ntaps()
                   << " Search depth:" << d_search_depth << "\n";
     }
 }
@@ -298,17 +298,17 @@ burst_downmix_impl::generate_sync_word(::iridium::direction direction)
 #endif
 
     if (d_debug) {
-        std::cout << "Sync Word Unpadded: ";
+        std::cerr << "Sync Word Unpadded: ";
         for (gr_complex s : sync_word) {
             std::cout << s << ", ";
         }
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
-        std::cout << "Sync Word Padded: ";
+        std::cerr << "Sync Word Padded: ";
         for (gr_complex s : sync_word_padded) {
-            std::cout << s << ", ";
+            std::cerr << s << ", ";
         }
-        std::cout << std::endl;
+        std::cerr << std::endl;
     }
 
     std::reverse(sync_word_padded.begin(), sync_word_padded.end());
@@ -333,7 +333,7 @@ void burst_downmix_impl::initialize_cfo_est_fft(void)
     memcpy(d_cfo_est_window_f, &window[0], sizeof(float) * d_cfo_est_fft_size);
 
     if (d_debug) {
-        printf("fft_length=%d (%d)\n",
+        fprintf(stderr,"fft_length=%d (%d)\n",
                d_cfo_est_fft_size,
                d_output_samples_per_symbol * (::iridium::PREAMBLE_LENGTH_SHORT + 10));
     }
@@ -351,7 +351,7 @@ void burst_downmix_impl::initialize_correlation_filter(void)
     // d_sync_search_len = d_corr_fft_size - d_dl_preamble_reversed_conj.size() + 1;
 
     if (d_debug) {
-        std::cout << "Conv FFT size:" << d_corr_fft_size << std::endl;
+        std::cerr << "Conv FFT size:" << d_corr_fft_size << std::endl;
     }
 
     // Allocate space for the pre transformed filters
@@ -531,7 +531,7 @@ int burst_downmix_impl::process_next_frame(float sample_rate,
     const int max_index =
         fft_unshift_index(max_index_shifted, d_cfo_est_fft_size * d_fft_over_size_facor);
     if (d_debug) {
-        printf("max_index=%d\n", max_index);
+        fprintf(stderr, "max_index=%d\n", max_index);
     }
 
     // Interpolate the result of the FFT to get a finer resolution.
@@ -558,7 +558,7 @@ int burst_downmix_impl::process_next_frame(float sample_rate,
         interpolated_index / (d_cfo_est_fft_size * d_fft_over_size_facor) / 2;
 
     if (d_debug) {
-        printf("interpolated_index=%f center_offset=%f (%f)\n",
+        fprintf(stderr,"interpolated_index=%f center_offset=%f (%f)\n",
                interpolated_index,
                center_offset,
                center_offset * d_output_sample_rate);
@@ -668,7 +668,7 @@ int burst_downmix_impl::process_next_frame(float sample_rate,
 
 
     if (d_debug) {
-        printf("Conv max index = %d\n", corr_offset);
+        fprintf(stderr,"Conv max index = %d\n", corr_offset);
     }
 
     // Careful: The correlation might have found the start of the sync word
@@ -735,7 +735,7 @@ int burst_downmix_impl::process_next_frame(float sample_rate,
     pdu_meta = pmt::dict_add(pdu_meta, pmt::mp("magnitude"), pmt::mp(magnitude));
 
     if (d_debug) {
-        printf("center_frequency=%f, uw_start=%u\n", center_frequency, uw_start);
+        fprintf(stderr,"center_frequency=%f, uw_start=%u\n", center_frequency, uw_start);
     }
 
     pmt::pmt_t out_msg = pmt::cons(pdu_meta, pdu_vector);
@@ -773,12 +773,12 @@ void burst_downmix_impl::handler(pmt::pmt_t msg)
     }
 
     if (d_debug) {
-        printf("---------------> id:%" PRIu64 " len:%zu\n", id, burst_size);
+        fprintf(stderr,"---------------> id:%" PRIu64 " len:%zu\n", id, burst_size);
         float absolute_frequency = center_frequency + relative_frequency * sample_rate;
-        printf("relative_frequency=%f, absolute_frequency=%f\n",
+        fprintf(stderr,"relative_frequency=%f, absolute_frequency=%f\n",
                relative_frequency,
                absolute_frequency);
-        printf("sample_rate=%f\n", sample_rate);
+        fprintf(stderr,"sample_rate=%f\n", sample_rate);
     }
 
     if (d_hard_max_queue_len && get_input_queue_size() >= d_hard_max_queue_len) {
@@ -832,7 +832,7 @@ void burst_downmix_impl::handler(pmt::pmt_t msg)
     sample_rate /= decimation;
 
     if (d_debug) {
-        printf("---------------> id:%" PRIu64 " len:%lu\n",
+        fprintf(stderr,"---------------> id:%" PRIu64 " len:%lu\n",
                id,
                burst_size / d_output_sample_rate);
         write_data_c(d_frame, burst_size, (char*)"signal-filtered-deci", id);
@@ -864,7 +864,7 @@ void burst_downmix_impl::handler(pmt::pmt_t msg)
     float* max = std::max_element(d_magnitude_filtered_f, d_magnitude_filtered_f + N);
     float threshold = *max * 0.28;
     if (d_debug) {
-        std::cout << "Threshold:" << threshold << " Max:" << *max << "("
+        std::cerr << "Threshold:" << threshold << " Max:" << *max << "("
                   << (max - d_magnitude_filtered_f) << ")\n";
     }
 
@@ -880,7 +880,7 @@ void burst_downmix_impl::handler(pmt::pmt_t msg)
     }
 
     if (d_debug) {
-        std::cout << "Start:" << start << "\n";
+        std::cerr << "Start:" << start << "\n";
         write_data_c(d_frame + start,
                      burst_size - start,
                      (char*)"signal-filtered-deci-cut-start",

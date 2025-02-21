@@ -188,7 +188,7 @@ void tagged_burst_to_pdu_impl::create_new_bursts(int noutput_items, const gr_com
                 int to_copy = noutput_items - relative_offset;
                 append_to_burst(d_bursts[id], &in[relative_offset], to_copy);
                 if (d_debug) {
-                    printf("New burst: offset=%" PRIu64 ", id=%" PRIu64
+                    fprintf(stderr, "New burst: offset=%" PRIu64 ", id=%" PRIu64
                            ", relative_frequency=%f, magnitude=%f\n",
                            tag.offset,
                            id,
