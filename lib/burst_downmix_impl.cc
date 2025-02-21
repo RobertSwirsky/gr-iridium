@@ -768,7 +768,7 @@ void burst_downmix_impl::handler(pmt::pmt_t msg)
     float magnitude =
         pmt::to_float(pmt::dict_ref(meta, pmt::mp("magnitude"), pmt::PMT_NIL));
 
-    if (id >= d_debug_id && id <= d_debug_id + 2000) {
+    if (id >= d_debug_id && id <= d_debug_id + 20000) {
         d_debug = true;
     }
 
