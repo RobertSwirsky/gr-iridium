@@ -33,7 +33,7 @@
 
  static const char *__doc_gr_iridium_burst_downmix_get_input_queue_size = R"doc()doc";
 
-
  static const char *__doc_gr_iridium_burst_downmix_debug_id = R"doc()doc";
 
+ static const char *__doc_gr_iridium_burst_downmix_debug_time = R"doc()doc";
   

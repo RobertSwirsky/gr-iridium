@@ -35,6 +35,8 @@
 #include <inttypes.h>
 #include <volk/volk.h>
 
+#include <time.h>
+
 namespace gr {
 namespace iridium {
 
@@ -122,6 +124,7 @@ burst_downmix_impl::burst_downmix_impl(int output_sample_rate,
       d_pre_start_samples(int(0.1e-3 * d_output_sample_rate)),
       d_n_dropped_bursts(0),
       d_debug_id(-1),
+      d_debug_time(-1),
 
       // Take the FFT over the (short) preamble + 10 symbols from the unique word (UW)
       // (Frames with a 64 symbol preamble will use 26 symbols of the preamble)
@@ -434,6 +437,8 @@ size_t burst_downmix_impl::get_input_queue_size() { return nmsgs(pmt::mp("cpdus"
 uint64_t burst_downmix_impl::get_n_dropped_bursts() { return d_n_dropped_bursts; }
 
 void burst_downmix_impl::debug_id(uint64_t id) { d_debug_id = id; }
+void burst_downmix_impl::debug_time(int32_t dt) { d_debug_time = dt; }
+
 
 // Maps an index in [-N/2 .. (N/2)-1] notation to [0 .. N-1] notation
 int burst_downmix_impl::fft_shift_index(int index, int fft_size)
@@ -746,6 +751,10 @@ int burst_downmix_impl::process_next_frame(float sample_rate,
 
 void burst_downmix_impl::handler(pmt::pmt_t msg)
 {
+    /* we will check the time if we're in timed debug mode*/
+    time_t now;
+    struct tm *local_time;
+
     /*
      * Extract the burst and meta data from the cpdu
      */
@@ -771,6 +780,17 @@ void burst_downmix_impl::handler(pmt::pmt_t msg)
     if (id >= d_debug_id && id <= d_debug_id + 20000) {
         d_debug = true;
     }
+
+    /* Add d_debug_time check here*/
+    if (d_debug_time >= 0) {
+        time(&now);
+        local_time = localtime(&now);
+        int seconds = local_time->tm_sec;
+        if ((seconds >= d_debug_time) && (seconds  <= d_debug_time+5)) {
+            d_debug = true;
+        } 
+    }
+
 
     if (d_debug) {
         fprintf(stderr,"---------------> id:%" PRIu64 " len:%zu\n", id, burst_size);
@@ -916,7 +936,7 @@ void burst_downmix_impl::handler(pmt::pmt_t msg)
 
     message_port_pub(pmt::mp("burst_handled"), pmt::mp(id));
 
-    if (d_debug_id >= 0) {
+    if (d_debug_id >= 0 || d_debug_time > 0 ) {
         d_debug = false;
     }
 }

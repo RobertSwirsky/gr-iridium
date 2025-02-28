@@ -46,6 +46,7 @@ private:
     bool d_handle_multiple_frames_per_burst;
     bool d_debug;
     int64_t d_debug_id;
+    int32_t d_debug_time;
 
     gr_complex* d_frame;
     gr_complex* d_tmp_a;
@@ -102,6 +103,7 @@ public:
     size_t get_input_queue_size();
     uint64_t get_n_dropped_bursts();
     void debug_id(uint64_t id);
+    void debug_time(int32_t dt);
 
     int work(int noutput_items,
              gr_vector_const_void_star& input_items,

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # vim: set ts=4 sw=4 tw=0 et pm=:
+
 import time
 import getopt
 import sys
@@ -131,6 +132,8 @@ if __name__ == "__main__":
                         help='Burst detection threshold in dB. Default: 18 dB.')
     parser.add_argument('--debug-id', dest='debug_id', type=int,
                         help='Write debug data for a certain frame ID. Last digit must be 0. See documentation for details.')
+    parser.add_argument('--debug-time', dest='debug_time', type=int,
+                        help='second mark (00-59) when debug packets are dumped each minute for 5 seconds')
     parser.add_argument('-D', '--decimation', dest='decimation', type=int,
                         help='Number of channel to split the signal into. Must be even or 1. Default: 1.')
     parser.add_argument('--file-info', dest='file_info', action="store",
@@ -339,6 +342,11 @@ if __name__ == "__main__":
             print("/tmp/signals directory missing!", file=sys.stderr)
             exit(1)
 
+    if args.debug_time > 0:
+        if not os.path.isdir('/tmp/signals'):
+            print("/tmp/signals directory missing!", file=sys.stderr)
+            exit(1)
+
     if args.sigmf_meta_filename is not None:
         import json
         import datetime
@@ -406,6 +414,7 @@ if __name__ == "__main__":
                                                        handle_multiple_frames_per_burst=args.handle_multiple_frames_per_burst,
                                                        raw_capture_filename=args.raw_capture_filename,
                                                        debug_id=args.debug_id,
+                                                       debug_time=args.debug_time,
                                                        max_bursts=args.max_bursts,
                                                        verbose=args.verbose,
                                                        file_info=args.file_info,

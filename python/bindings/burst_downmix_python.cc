@@ -62,18 +62,17 @@ void bind_burst_downmix(py::module& m)
         )
 
 
-        
         .def("debug_id",&burst_downmix::debug_id,       
             py::arg("id"),
             D(burst_downmix,debug_id)
         )
 
+        .def("debug_time",&burst_downmix::debug_time,       
+            py::arg("dt"),
+            D(burst_downmix,debug_time)
+        )
         ;
-
-
-
-
-}
+};
 
 
 

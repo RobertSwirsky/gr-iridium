@@ -28,7 +28,7 @@ def strtobool(val):
 class FlowGraph(gr.top_block):
     def __init__(self, center_frequency, sample_rate, decimation, filename, sample_format=None, threshold=7.0,
                  burst_width=40e3, offline=False, max_queue_len=500, handle_multiple_frames_per_burst=False,
-                 raw_capture_filename=None, debug_id=None, max_bursts=0, verbose=False, file_info="",
+                 raw_capture_filename=None, debug_id=None, debug_time=-1, max_bursts=0, verbose=False, file_info="",
                  samples_per_symbol=10, config={}):
         gr.top_block.__init__(self, "Top Block")
         self.handle_sigint = False
@@ -571,6 +571,9 @@ class FlowGraph(gr.top_block):
                 if debug_id is not None:
                     burst_downmixer.debug_id(debug_id)
 
+                if debug_time >=0:
+                    burst_downmixer.debug_time(debug_time)
+
                 self._burst_downmixers.append(burst_downmixer)
 
             channelizer_debug_sinks = []
@@ -608,6 +611,8 @@ class FlowGraph(gr.top_block):
             burst_downmix = iridium.burst_downmix(self._burst_sample_rate, int(0.007 * self._burst_sample_rate), 0, (input_filter), (start_finder_filter), self._handle_multiple_frames_per_burst)
             if debug_id is not None:
                 burst_downmix.debug_id(debug_id)
+            if debug_time >= 0:
+                burst_downmix.debug_time(debug_time)
 
             burst_to_pdu = iridium.tagged_burst_to_pdu(self._max_burst_len,
                                                        0.0, 1.0, 1.0,
